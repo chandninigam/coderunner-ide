@@ -8,11 +8,15 @@ import HelloWorld from "./utils/helloworld";
 import { key as Token } from "./utils/apikey";
 import getExtension from "./utils/getextension";
 
+// import { cpp } from "compile-run";
+
 function App() {
 	const [lang, setlang] = useState("c");
 	const [theme, settheme] = useState("dark");
 
 	const [valueeditor, setvalueeditor] = useState(HelloWorld[lang]);
+
+	const [input, setinput] = useState("");
 
 	return (
 		<div className="container app">
@@ -51,24 +55,24 @@ function App() {
 					<button
 						className="btn btn-primary ml-2"
 						onClick={() => {
-							const url = `https://cors-anywhere.herokuapp.com/https://run.glot.io/languages/${lang}/latest/`;
-
+							const url = "https://api.jdoodle.com/v1/execute";
 							const data = {
-								stdin: "",
-								files: [
-									{ name: `main.${getExtension(lang)}`, content: valueeditor },
-								],
+								script: valueeditor,
+								language: lang,
 							};
-
 							const config = {
 								headers: {
-									Authorization: `Token ${Token}`,
+									"Access-Control-Allow-Origin": "*",
+									"Content-Type": "application/json",
 								},
 							};
-
-							Axios.post(url, data, config).then((res) =>
-								console.log(res.data)
-							);
+							Axios.post(url, data, config)
+								.then((result) => {
+									console.log(result);
+								})
+								.catch((error) => {
+									console.log(error);
+								});
 						}}
 					>
 						RUN
@@ -89,7 +93,21 @@ function App() {
 					}}
 				/>
 			</div>
-			<div className="section4"></div>
+			<div className="section4">
+				<div className="inputdiv">
+					<textarea
+						rows="7"
+						cols="50"
+						placeholder="INPUT"
+						onChange={(event) => {
+							setinput(event.target.value);
+						}}
+					/>
+				</div>
+				<div className="outputdiv">
+					<textarea rows="7" cols="50" disabled value="OUTPUT"></textarea>
+				</div>
+			</div>
 		</div>
 	);
 }
